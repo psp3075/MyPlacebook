@@ -8,12 +8,14 @@ import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import { AuthContext } from "../../shared/context/auth-context";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import "./PlaceItem.css";
+import { useHistory } from "react-router-dom";
 
 function PlaceItem(props) {
   const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const history = useHistory();
 
   function openMap() {
     setShowMap(true);
@@ -33,12 +35,15 @@ function PlaceItem(props) {
 
   async function confirmDelete() {
     setShowConfirmModal(false);
-    console.log("Deleting");
+    // console.log("Deleting");
     try {
       await sendRequest(
-        `http://localhost:5000/api/places/${props.id}`,
-        "DELETE"
+        `${process.env.REACT_APP_API_URL}/places/${props.id}`,
+        "DELETE",
+        null,
+        { Authorization: "Bearer " + auth.token }
       );
+      history.push("/");
       props.onDelete(props.id);
     } catch (err) {}
   }
@@ -84,7 +89,7 @@ function PlaceItem(props) {
           {isLoading && <LoadingSpinner asOverlay />}
           <div className="place-item__image">
             <img
-              src={`http://localhost:5000/${props.image}`}
+              src={`${process.env.REACT_APP_ASSET_URL}/${props.image}`}
               alt={props.title}
             />
           </div>
